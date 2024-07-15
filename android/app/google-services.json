@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328462257072",
+    "project_id": "finals-flutter-tictactoe",
+    "storage_bucket": "finals-flutter-tictactoe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328462257072:android:5832260fdd82b4016b2475",
+        "android_client_info": {
+          "package_name": "com.example.finals_tictactoe_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlIABqN_HXEohklrpLmI1wFIcgWqC3nLg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
