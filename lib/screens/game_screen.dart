@@ -19,12 +19,24 @@ class _GameScreenState extends State<GameScreen> {
   AuthService? authService;
   GameService? gameService;
   TextEditingController _chatController = TextEditingController();
+  String? player1Id;
+  String? player2Id;
 
   @override
   void initState() {
     super.initState();
     gameRef = FirebaseFirestore.instance.collection('games').doc(widget.gameId);
     gameStream = gameRef.snapshots();
+    _initializePlayers();
+  }
+
+  void _initializePlayers() async {
+    DocumentSnapshot gameSnapshot = await gameRef.get();
+    Map<String, dynamic> gameData = gameSnapshot.data() as Map<String, dynamic>;
+    setState(() {
+      player1Id = gameData['player1'];
+      player2Id = gameData['player2'];
+    });
   }
 
   @override
@@ -47,6 +59,12 @@ class _GameScreenState extends State<GameScreen> {
       await gameService?.sendMessage(widget.gameId, currentUser.uid, _chatController.text.trim());
       _chatController.clear();
     }
+  }
+
+  String _getPlayerLabel(String userId) {
+    if (userId == player1Id) return 'Player 1';
+    if (userId == player2Id) return 'Player 2';
+    return 'Unknown Player'; // Fallback in case userId doesn't match any player
   }
 
   @override
@@ -88,7 +106,7 @@ class _GameScreenState extends State<GameScreen> {
                       var userId = messageData['userId'];
 
                       return ListTile(
-                        title: Text(userId),
+                        title: Text(_getPlayerLabel(userId)),
                         subtitle: Text(message),
                       );
                     },
@@ -125,8 +143,8 @@ class _GameScreenState extends State<GameScreen> {
             return Center(child: CircularProgressIndicator());
           }
 
-          Map<String, dynamic> gameData = snapshot.data?.data() as Map<String, dynamic>? ?? {};
-          List<String> board = List<String>.from(gameData['board'] ?? []);
+          Map<String, dynamic> gameData = snapshot.data!.data() as Map<String, dynamic>;
+          List<String> board = List<String>.from(gameData['board']);
           String? currentTurn = gameData['currentTurn'];
           String? winner = gameData['winner'];
 
@@ -150,9 +168,11 @@ class _GameScreenState extends State<GameScreen> {
                         color: Colors.blue,
                         child: Center(
                           child: Text(
-                            board.isNotEmpty
-                                ? (board[index] == gameData['player1'] ? 'X' : (board[index] == gameData['player2'] ? 'O' : ''))
-                                : '',
+                            board[index] == gameData['player1']
+                                ? 'X'
+                                : board[index] == gameData['player2']
+                                    ? 'O'
+                                    : '',
                             style: TextStyle(fontSize: 24, color: Colors.white),
                           ),
                         ),
@@ -165,7 +185,7 @@ class _GameScreenState extends State<GameScreen> {
               if (currentTurn != null)
                 Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
               if (winner != null) ...[
-                Text(winner == 'Draw' ? 'Game Drawn' : 'Winner: ${winner == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
+                Text('Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
                 ElevatedButton(
                   onPressed: () {
                     gameService?.initiateRematch(widget.gameId);
