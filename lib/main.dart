@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await FirebaseAuth.instance.signOut(); 
+  await FirebaseAuth.instance.signOut();
   runApp(MyApp());
 }
 
@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 
 class AuthWrapper extends StatelessWidget {
   @override

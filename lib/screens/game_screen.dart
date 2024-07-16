@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:finals_tictactoe_application/services/auth_service.dart';
+import 'package:finals_tictactoe_application/services/game_service.dart';
 
 class GameScreen extends StatefulWidget {
   final String gameId;
@@ -16,6 +17,7 @@ class _GameScreenState extends State<GameScreen> {
   late DocumentReference gameRef;
   late Stream<DocumentSnapshot> gameStream;
   AuthService? authService;
+  GameService? gameService;
 
   @override
   void initState() {
@@ -28,111 +30,13 @@ class _GameScreenState extends State<GameScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     authService = Provider.of<AuthService>(context, listen: false);
+    gameService = Provider.of<GameService>(context, listen: false);
   }
 
   @override
   void dispose() {
-    leaveGame();
+    gameService?.leaveGame(widget.gameId);
     super.dispose();
-  }
-
-  Future<void> leaveGame() async {
-    final currentUser = authService?.currentUser;
-    if (currentUser == null) return;
-
-    DocumentSnapshot gameSnapshot = await gameRef.get();
-    Map<String, dynamic> gameData = gameSnapshot.data() as Map<String, dynamic>;
-
-    if (gameData['player1'] == currentUser.uid) {
-      await gameRef.update({'player1': null});
-    } else if (gameData['player2'] == currentUser.uid) {
-      await gameRef.update({'player2': null});
-    }
-
-    await resetGame();
-  }
-
-  Future<void> resetGame() async {
-    DocumentSnapshot gameSnapshot = await gameRef.get();
-    Map<String, dynamic> gameData = gameSnapshot.data() as Map<String, dynamic>;
-
-    String? newCurrentTurn;
-    if (gameData['player1'] != null) {
-      newCurrentTurn = gameData['player1'];
-    } else if (gameData['player2'] != null) {
-      newCurrentTurn = gameData['player2'];
-    } else {
-      newCurrentTurn = null;
-    }
-
-    await gameRef.update({
-      'board': List.generate(9, (_) => ''),
-      'currentTurn': newCurrentTurn,
-      'winner': null,
-    });
-  }
-
-  Future<void> makeMove(int index) async {
-    final currentUser = authService?.currentUser;
-    if (currentUser == null) return;
-
-    DocumentSnapshot gameSnapshot = await gameRef.get();
-    Map<String, dynamic> gameData = gameSnapshot.data() as Map<String, dynamic>;
-
-    if (gameData['board'][index] != '' || gameData['winner'] != null) return;
-
-    if (gameData['currentTurn'] != currentUser.uid) return;
-
-    gameData['board'][index] = currentUser.uid;
-    gameData['currentTurn'] = (gameData['currentTurn'] == gameData['player1'])
-        ? gameData['player2']
-        : gameData['player1'];
-
-    await gameRef.update({
-      'board': gameData['board'],
-      'currentTurn': gameData['currentTurn'],
-    });
-
-    checkWinner(gameData);
-  }
-
-  void checkWinner(Map<String, dynamic> gameData) async {
-    final currentUser = authService?.currentUser;
-    if (currentUser == null) return;
-
-    List<String> board = List<String>.from(gameData['board']);
-    List<List<int>> winningCombinations = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (List<int> combination in winningCombinations) {
-      String a = board[combination[0]];
-      String b = board[combination[1]];
-      String c = board[combination[2]];
-      if (a == b && b == c && a != '') {
-        await gameRef.update({
-          'winner': a,
-        });
-        return;
-      }
-    }
-
-    if (!board.contains('')) {
-      await gameRef.update({
-        'winner': 'Draw',
-      });
-    }
-  }
-
-  void initiateRematch() async {
-    await resetGame();
   }
 
   @override
@@ -171,7 +75,7 @@ class _GameScreenState extends State<GameScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      makeMove(index);
+                      gameService?.makeMove(widget.gameId, index);
                     },
                     child: GridTile(
                       child: Container(
@@ -198,11 +102,13 @@ class _GameScreenState extends State<GameScreen> {
               if (winner != null) ...[
                 Text('Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
                 ElevatedButton(
-                  onPressed: initiateRematch,
+                  onPressed: () {
+                    gameService?.initiateRematch(widget.gameId);
+                  },
                   child: Text('Rematch'),
                 ),
               ],
-              if (gameData['player1'] == null || gameData['player2'] == null) 
+              if (gameData['player1'] == null || gameData['player2'] == null)
                 Text('Waiting for a player to join...'),
             ],
           );

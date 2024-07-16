@@ -1,3 +1,4 @@
+import 'package:finals_tictactoe_application/services/game_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:finals_tictactoe_application/services/auth_service.dart';
@@ -24,7 +25,7 @@ class HomeScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                String gameId = await Provider.of<AuthService>(context, listen: false).createGame();
+                String gameId = await Provider.of<GameService>(context, listen: false).createGame();
                 showDialog(
                   context: context,
                   builder: (context) {
@@ -77,7 +78,7 @@ class HomeScreen extends StatelessWidget {
                         TextButton(
                           onPressed: () async {
                             try {
-                              await Provider.of<AuthService>(context, listen: false)
+                              await Provider.of<GameService>(context, listen: false)
                                   .joinGame(gameIdController.text.trim());
                               Navigator.pop(context);
                               Navigator.push(
