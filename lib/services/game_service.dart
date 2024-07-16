@@ -14,7 +14,7 @@ class GameService with ChangeNotifier {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     Random rnd = Random();
     return String.fromCharCodes(Iterable.generate(
-      length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+        length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
   }
 
   Future<String> createGame() async {
@@ -71,7 +71,14 @@ class GameService with ChangeNotifier {
       await gameRef.update({'player2': null});
     }
 
-    await resetGame(gameId);
+    // Check if both players have left and delete the game if true
+    final updatedGameDoc = await gameRef.get();
+    final updatedGameData = updatedGameDoc.data() as Map<String, dynamic>;
+    if (updatedGameData['player1'] == null && updatedGameData['player2'] == null) {
+      await gameRef.delete();
+    } else {
+      await resetGame(gameId);
+    }
   }
 
   Future<void> resetGame(String gameId) async {
