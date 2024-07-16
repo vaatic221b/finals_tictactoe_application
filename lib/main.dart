@@ -2,6 +2,7 @@ import 'package:finals_tictactoe_application/screens/home_screen.dart';
 import 'package:finals_tictactoe_application/screens/login_screen.dart';
 import 'package:finals_tictactoe_application/screens/register_screen.dart';
 import 'package:finals_tictactoe_application/services/auth_service.dart';
+import 'package:finals_tictactoe_application/services/game_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => GameService()),  // Add GameService here
       ],
       child: MaterialApp(
         initialRoute: '/',
@@ -28,7 +30,6 @@ class MyApp extends StatelessWidget {
           '/login': (context) => LoginScreen(),
           '/register': (context) => RegisterScreen(),
           '/home': (context) => HomeScreen(),
-          // '/game': (context) => GameScreen(),
         },
       ),
     );
