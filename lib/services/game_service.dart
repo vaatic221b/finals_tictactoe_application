@@ -162,4 +162,16 @@ class GameService with ChangeNotifier {
   Future<void> initiateRematch(String gameId) async {
     await resetGame(gameId);
   }
+
+  Future<void> sendMessage(String gameId, String userId, String message) async {
+    await _firestore.collection('games').doc(gameId).collection('messages').add({
+      'userId': userId,
+      'message': message,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<QuerySnapshot> getMessages(String gameId) {
+    return _firestore.collection('games').doc(gameId).collection('messages').orderBy('timestamp').snapshots();
+  }
 }

@@ -18,6 +18,7 @@ class _GameScreenState extends State<GameScreen> {
   late Stream<DocumentSnapshot> gameStream;
   AuthService? authService;
   GameService? gameService;
+  TextEditingController _chatController = TextEditingController();
 
   @override
   void initState() {
@@ -36,7 +37,16 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void dispose() {
     gameService?.leaveGame(widget.gameId);
+    _chatController.dispose();
     super.dispose();
+  }
+
+  void _sendMessage() async {
+    final currentUser = authService?.currentUser;
+    if (currentUser != null && _chatController.text.trim().isNotEmpty) {
+      await gameService?.sendMessage(widget.gameId, currentUser.uid, _chatController.text.trim());
+      _chatController.clear();
+    }
   }
 
   @override
@@ -44,11 +54,68 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Tic-Tac-Toe Game'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        actions: [
+          Builder(
+            builder: (context) {
+              return IconButton(
+                icon: Icon(Icons.chat),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              );
+            },
+          ),
+        ],
+      ),
+      endDrawer: Drawer(
+        child: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: gameService?.getMessages(widget.gameId),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  var messages = snapshot.data!.docs;
+
+                  return ListView.builder(
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      var messageData = messages[index].data() as Map<String, dynamic>;
+                      var message = messageData['message'];
+                      var userId = messageData['userId'];
+
+                      return ListTile(
+                        title: Text(userId),
+                        subtitle: Text(message),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _chatController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter your message',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: _sendMessage,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
       body: StreamBuilder<DocumentSnapshot>(
