@@ -125,8 +125,8 @@ class _GameScreenState extends State<GameScreen> {
             return Center(child: CircularProgressIndicator());
           }
 
-          Map<String, dynamic> gameData = snapshot.data!.data() as Map<String, dynamic>;
-          List<String> board = List<String>.from(gameData['board']);
+          Map<String, dynamic> gameData = snapshot.data?.data() as Map<String, dynamic>? ?? {};
+          List<String> board = List<String>.from(gameData['board'] ?? []);
           String? currentTurn = gameData['currentTurn'];
           String? winner = gameData['winner'];
 
@@ -150,11 +150,9 @@ class _GameScreenState extends State<GameScreen> {
                         color: Colors.blue,
                         child: Center(
                           child: Text(
-                            board[index] == gameData['player1']
-                                ? 'X'
-                                : board[index] == gameData['player2']
-                                    ? 'O'
-                                    : '',
+                            board.isNotEmpty
+                                ? (board[index] == gameData['player1'] ? 'X' : (board[index] == gameData['player2'] ? 'O' : ''))
+                                : '',
                             style: TextStyle(fontSize: 24, color: Colors.white),
                           ),
                         ),
@@ -167,7 +165,7 @@ class _GameScreenState extends State<GameScreen> {
               if (currentTurn != null)
                 Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
               if (winner != null) ...[
-                Text('Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
+                Text(winner == 'Draw' ? 'Game Drawn' : 'Winner: ${winner == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
                 ElevatedButton(
                   onPressed: () {
                     gameService?.initiateRematch(widget.gameId);
