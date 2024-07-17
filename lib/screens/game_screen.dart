@@ -64,14 +64,15 @@ class _GameScreenState extends State<GameScreen> {
   String _getPlayerLabel(String userId) {
     if (userId == player1Id) return 'Player 1';
     if (userId == player2Id) return 'Player 2';
-    return 'Unknown Player'; // Fallback in case userId doesn't match any player
+    return 'Player 3'; // Fallback in case userId doesn't match any player
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tic-Tac-Toe Game'),
+        title: Text('Tic-Tac-Toe Game', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blueAccent,
         actions: [
           Builder(
             builder: (context) {
@@ -106,7 +107,7 @@ class _GameScreenState extends State<GameScreen> {
                       var userId = messageData['userId'];
 
                       return ListTile(
-                        title: Text(_getPlayerLabel(userId)),
+                        title: Text(_getPlayerLabel(userId), style: TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(message),
                       );
                     },
@@ -123,6 +124,9 @@ class _GameScreenState extends State<GameScreen> {
                       controller: _chatController,
                       decoration: InputDecoration(
                         hintText: 'Enter your message',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ),
@@ -136,68 +140,98 @@ class _GameScreenState extends State<GameScreen> {
           ],
         ),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: gameStream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          Map<String, dynamic> gameData = snapshot.data!.data() as Map<String, dynamic>;
-          List<String> board = List<String>.from(gameData['board']);
-          String? currentTurn = gameData['currentTurn'];
-          String? winner = gameData['winner'];
-
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                ),
-                itemCount: 9,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      gameService?.makeMove(widget.gameId, index);
-                    },
-                    child: GridTile(
-                      child: Container(
-                        margin: EdgeInsets.all(4.0),
-                        color: Colors.blue,
-                        child: Center(
-                          child: Text(
-                            board[index] == gameData['player1']
-                                ? 'X'
-                                : board[index] == gameData['player2']
-                                    ? 'O'
-                                    : '',
-                            style: TextStyle(fontSize: 24, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+      body: Stack(
+        children: [
+          // Background image
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/game_background.jpg'),
+                fit: BoxFit.cover,
               ),
-              SizedBox(height: 20),
-              if (currentTurn != null)
-                Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
-              if (winner != null) ...[
-                Text('Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}'),
-                ElevatedButton(
-                  onPressed: () {
-                    gameService?.initiateRematch(widget.gameId);
-                  },
-                  child: Text('Rematch'),
-                ),
-              ],
-              if (gameData['player1'] == null || gameData['player2'] == null)
-                Text('Waiting for a player to join...'),
-            ],
-          );
-        },
+            ),
+          ),
+          Center(
+            child: StreamBuilder<DocumentSnapshot>(
+              stream: gameStream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                Map<String, dynamic> gameData = snapshot.data!.data() as Map<String, dynamic>;
+                List<String> board = List<String>.from(gameData['board']);
+                String? currentTurn = gameData['currentTurn'];
+                String? winner = gameData['winner'];
+
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                      ),
+                      itemCount: 9,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            gameService?.makeMove(widget.gameId, index);
+                          },
+                          child: GridTile(
+                            child: Container(
+                              margin: EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  board[index] == gameData['player1']
+                                      ? 'X'
+                                      : board[index] == gameData['player2']
+                                          ? 'O'
+                                          : '',
+                                  style: TextStyle(fontSize: 40, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    if (currentTurn != null && winner == null)
+                      Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    if (winner != null) ...[
+                      Text('Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          gameService?.initiateRematch(widget.gameId);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          textStyle: TextStyle(fontSize: 18),
+                        ),
+                        child: Text('Rematch', style: TextStyle(color: Colors.white),),
+                      ),
+                    ],
+                    if (gameData['player1'] == null || gameData['player2'] == null)
+                      Text('Waiting for a player to join...',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
