@@ -146,7 +146,7 @@ class _GameScreenState extends State<GameScreen> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/game_background.jpg'),
+                image: AssetImage('assets/images/background.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -167,6 +167,30 @@ class _GameScreenState extends State<GameScreen> {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const Spacer(),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(1.0),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.blueAccent, width: 2),
+                      ),
+                      child: Text(
+                        'Game ID: ${widget.gameId}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: 300,
+                      height: 50,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 10),
                     GridView.builder(
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -182,7 +206,8 @@ class _GameScreenState extends State<GameScreen> {
                             child: Container(
                               margin: EdgeInsets.all(4.0),
                               decoration: BoxDecoration(
-                                color: Colors.blue,
+                                color: Color(0xFFDCF4FF),
+                                border: Border.all(color: Color(0xFF6A6271), width: 2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(
@@ -192,7 +217,14 @@ class _GameScreenState extends State<GameScreen> {
                                       : board[index] == gameData['player2']
                                           ? 'O'
                                           : '',
-                                  style: TextStyle(fontSize: 40, color: Colors.white),
+                                  style: TextStyle(
+                                    fontSize: 70,
+                                    color: board[index] == gameData['player1']
+                                        ? Color(0xFFE94A5A) 
+                                        : board[index] == gameData['player2']
+                                            ? Color(0xFF4AB6D8) 
+                                            : Colors.white, 
+                                  ),
                                 ),
                               ),
                             ),
@@ -200,10 +232,22 @@ class _GameScreenState extends State<GameScreen> {
                         );
                       },
                     ),
+
                     SizedBox(height: 20),
                     if (currentTurn != null && winner == null)
                       Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                          style: TextStyle(
+                            fontSize: 24, 
+                            fontWeight: FontWeight.bold, 
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1.0, 3.0),
+                                blurRadius: 1.0,
+                                color: Colors.black,
+                              ),
+                            ]
+                          )),
                     if (winner != null) ...[
                       Text('Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
@@ -224,8 +268,21 @@ class _GameScreenState extends State<GameScreen> {
                       ),
                     ],
                     if (gameData['player1'] == null || gameData['player2'] == null)
-                      Text('Waiting for a player to join...',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      const Text('Waiting for a player to join...',
+                          style: TextStyle(
+                            fontSize: 24, 
+                            fontWeight: FontWeight.bold, 
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1.0, 3.0),
+                                blurRadius: 1.0,
+                                color: Colors.black,
+                              ),
+                            ]
+                          )
+                      ),
+                      const Spacer()
                   ],
                 );
               },
