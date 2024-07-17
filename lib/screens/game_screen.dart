@@ -249,8 +249,18 @@ class _GameScreenState extends State<GameScreen> {
                             ]
                           )),
                     if (winner != null) ...[
-                      Text('Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
+                      Text(
+                        'Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: winner == 'Draw'
+                              ? Colors.red // Color for Draw case
+                              : winner == gameData['player1']
+                                  ? Color(0xFFE94A5A) // Color for Player 1 win
+                                  : Color(0xFF4AB6D8), // Color for Player 2 win
+                        ),
+                      ),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
@@ -264,9 +274,13 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                           textStyle: TextStyle(fontSize: 18),
                         ),
-                        child: Text('Rematch', style: TextStyle(color: Colors.white),),
+                        child: Text(
+                          'Rematch',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
+
                     if (gameData['player1'] == null || gameData['player2'] == null)
                       const Text('Waiting for a player to join...',
                           style: TextStyle(
