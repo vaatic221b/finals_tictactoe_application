@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tic-Tac-Toe Home', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text('Tic-Tac-Toe', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.blueAccent,
         actions: [
           IconButton(
@@ -37,112 +37,212 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    String gameId = await Provider.of<GameService>(context, listen: false).createGame();
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Game Created', style: TextStyle(color: Colors.blueAccent)),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Game ID: $gameId', style: TextStyle(fontSize: 18)),
-                              SizedBox(height: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Guide image
+                  Image.asset(
+                    'assets/images/guide.png',
+                    height: 300, // Adjust the height as needed
+                    fit: BoxFit.cover,
+                  ),
+                  SizedBox(height: 20), // Add some spacing between the image and the container
+                  // Stylish container with text
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(1.0),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.blueAccent, width: 2),
+                    ),
+                    child: Text(
+                      'First to line up three, wins!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 40), // Add some spacing between the container and the buttons
+                  ElevatedButton(
+                    onPressed: () async {
+                      String gameId = await Provider.of<GameService>(context, listen: false).createGame();
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text(
+                              'Game Created',
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Game ID: $gameId',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => GameScreen(gameId: gameId),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blueAccent,
+                                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    textStyle: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    "Let's go!",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            actions: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => GameScreen(gameId: gameId),
-                                    ),
-                                  );
+                                  Navigator.pop(context);
                                 },
-                                child: Text("Let's go!", style: TextStyle(color: Colors.blueAccent)),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.blueAccent, textStyle: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                child: Text('Close'),
                               ),
                             ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text('Close', style: TextStyle(color: Colors.blueAccent)),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: TextStyle(fontSize: 18),
                     ),
-                    textStyle: TextStyle(fontSize: 18),
+                    child: Text('Host Game'),
                   ),
-                  child: Text('Host Game'),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    TextEditingController gameIdController = TextEditingController();
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Join Game', style: TextStyle(color: Colors.blueAccent)),
-                          content: TextField(
-                            controller: gameIdController,
-                            decoration: InputDecoration(
-                              labelText: 'Enter Game ID',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      TextEditingController gameIdController = TextEditingController();
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text(
+                              'Join Game',
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () async {
-                                try {
-                                  await Provider.of<GameService>(context, listen: false)
-                                      .joinGame(gameIdController.text.trim());
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => GameScreen(gameId: gameIdController.text.trim()),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  controller: gameIdController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Enter Game ID',
+                                    labelStyle: TextStyle(fontSize: 18),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Failed to join game: $e')),
-                                  );
-                                }
-                              },
-                              child: Text('Join', style: TextStyle(color: Colors.blueAccent)),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.blueAccent),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                            actions: [
+                              TextButton(
+                                onPressed: () async {
+                                  try {
+                                    await Provider.of<GameService>(context, listen: false)
+                                        .joinGame(gameIdController.text.trim());
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => GameScreen(gameId: gameIdController.text.trim()),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Failed to join game: $e')),
+                                    );
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.blueAccent, textStyle: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                child: Text('Join'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.blueAccent, textStyle: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                child: Text('Cancel'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: TextStyle(fontSize: 18),
                     ),
-                    textStyle: TextStyle(fontSize: 18),
+                    child: Text('Join Game', style: TextStyle(color: Colors.white)),
                   ),
-                  child: Text('Join Game', style: TextStyle(color: Colors.white),),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
