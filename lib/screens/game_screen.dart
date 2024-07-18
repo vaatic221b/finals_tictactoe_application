@@ -92,7 +92,25 @@ class _GameScreenState extends State<GameScreen> {
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: currentTurnDisplay(player1Wins, player2Wins, board, gameData, currentTurn, winner),
+                  children: [
+                    const Spacer(),
+                    gameIDtopText(),
+                    const SizedBox(height: 10),
+                    winCounter(player1Wins, player2Wins),
+                    const SizedBox(height: 10),
+                    gameGrid(board, gameData),
+                    SizedBox(height: 20),
+                    if (currentTurn != null && winner == null)
+                      currentTurnDisplay(currentTurn, gameData),
+                    if (winner != null) ...[
+                      winnerDisplay(winner, gameData),
+                      const SizedBox(height: 20),
+                      rematchButton(),
+                    ],
+                    if (gameData['player1'] == null || gameData['player2'] == null)
+                      awaitPlayerText(),
+                      const Spacer()
+                  ],
                 );
               },
             ),
@@ -102,17 +120,8 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  List<Widget> currentTurnDisplay(int player1Wins, int player2Wins, List<String> board, Map<String, dynamic> gameData, String? currentTurn, String? winner) {
-    return [
-                  const Spacer(),
-                  gameIDtopText(),
-                  const SizedBox(height: 10),
-                  winCounter(player1Wins, player2Wins),
-                  const SizedBox(height: 10),
-                  gameGrid(board, gameData),
-                  SizedBox(height: 20),
-                  if (currentTurn != null && winner == null)
-                    Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}',
+  Text awaitPlayerText() {
+    return const Text('Waiting for a player to join...',
                         style: TextStyle(
                           fontSize: 24, 
                           fontWeight: FontWeight.bold, 
@@ -124,22 +133,12 @@ class _GameScreenState extends State<GameScreen> {
                               color: Colors.black,
                             ),
                           ]
-                        )),
-                  if (winner != null) ...[
-                    Text(
-                      'Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: winner == 'Draw'
-                            ? Colors.red // Color for Draw case
-                            : winner == gameData['player1']
-                                ? Color(0xFFE94A5A) // Color for Player 1 win
-                                : Color(0xFF4AB6D8), // Color for Player 2 win
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
+                        )
+                    );
+  }
+
+  ElevatedButton rematchButton() {
+    return ElevatedButton(
                       onPressed: () {
                         gameService?.initiateRematch(widget.gameId);
                       },
@@ -155,11 +154,26 @@ class _GameScreenState extends State<GameScreen> {
                         'Rematch',
                         style: TextStyle(color: Colors.white),
                       ),
-                    ),
-                  ],
+                    );
+  }
 
-                  if (gameData['player1'] == null || gameData['player2'] == null)
-                    const Text('Waiting for a player to join...',
+  Text winnerDisplay(String winner, Map<String, dynamic> gameData) {
+    return Text(
+                      'Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: winner == 'Draw'
+                            ? Colors.red // Color for Draw case
+                            : winner == gameData['player1']
+                                ? Color(0xFFE94A5A) // Color for Player 1 win
+                                : Color(0xFF4AB6D8), // Color for Player 2 win
+                      ),
+                    );
+  }
+
+  Text currentTurnDisplay(String currentTurn, Map<String, dynamic> gameData) {
+    return Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}',
                         style: TextStyle(
                           fontSize: 24, 
                           fontWeight: FontWeight.bold, 
@@ -171,10 +185,7 @@ class _GameScreenState extends State<GameScreen> {
                               color: Colors.black,
                             ),
                           ]
-                        )
-                    ),
-                    const Spacer()
-                ];
+                        ));
   }
 
   GridView gameGrid(List<String> board, Map<String, dynamic> gameData) {
