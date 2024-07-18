@@ -158,19 +158,29 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Text winnerDisplay(String winner, Map<String, dynamic> gameData) {
-    return Text(
-                      'Winner: ${winner == 'Draw' ? 'Draw' : winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: winner == 'Draw'
-                            ? Colors.red // Color for Draw case
-                            : winner == gameData['player1']
-                                ? Color(0xFFE94A5A) // Color for Player 1 win
-                                : Color(0xFF4AB6D8), // Color for Player 2 win
-                      ),
-                    );
+    if (winner == 'Draw') {
+      return Text(
+        'Draw',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white, 
+        ),
+      );
+    } else {
+      return Text(
+        'Winner: ${winner == gameData['player1'] ? 'Player 1' : 'Player 2'}',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: winner == gameData['player1']
+              ? Color(0xFFE94A5A) 
+              : Color(0xFF4AB6D8), 
+        ),
+      );
+    }
   }
+
 
   Text currentTurnDisplay(String currentTurn, Map<String, dynamic> gameData) {
     return Text('Turn: ${currentTurn == gameData['player1'] ? 'Player 1' : 'Player 2'}',
