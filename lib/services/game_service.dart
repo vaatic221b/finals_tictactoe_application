@@ -80,9 +80,15 @@ class GameService with ChangeNotifier {
     if (updatedGameData['player1'] == null && updatedGameData['player2'] == null) {
       await gameRef.delete();
     } else {
+      // Reset game and win counts if at least one player remains
+      await gameRef.update({
+        'player1Wins': 0,
+        'player2Wins': 0,
+      });
       await resetGame(gameId);
     }
   }
+
 
   Future<void> resetGame(String gameId) async {
     DocumentReference gameRef = _firestore.collection('games').doc(gameId);
