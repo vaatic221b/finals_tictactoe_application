@@ -28,10 +28,13 @@ class GameService with ChangeNotifier {
       'currentTurn': currentUser.uid,
       'board': List<String>.filled(9, ''),
       'winner': null,
+      'player1Wins': 0,
+      'player2Wins': 0,
     });
 
     return gameId;
   }
+
 
   Future<void> joinGame(String gameId) async {
     final currentUser = _auth.currentUser;
@@ -152,8 +155,12 @@ class GameService with ChangeNotifier {
       String b = board[combination[1]];
       String c = board[combination[2]];
       if (a == b && b == c && a != '') {
+        String winner = a == gameData['player1'] ? 'player1' : 'player2';
+        int newWins = (winner == 'player1' ? gameData['player1Wins'] : gameData['player2Wins']) + 1;
+
         await gameRef.update({
           'winner': a,
+          winner == 'player1' ? 'player1Wins' : 'player2Wins': newWins,
         });
         return;
       }
@@ -165,6 +172,7 @@ class GameService with ChangeNotifier {
       });
     }
   }
+
 
   Future<void> initiateRematch(String gameId) async {
     await resetGame(gameId);

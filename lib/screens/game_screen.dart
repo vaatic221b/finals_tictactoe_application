@@ -71,7 +71,7 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tic-Tac-Toe Game', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: Text('Tic-Tac-Toe Game', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.blueAccent,
         actions: [
           Builder(
@@ -163,6 +163,8 @@ class _GameScreenState extends State<GameScreen> {
                 List<String> board = List<String>.from(gameData['board']);
                 String? currentTurn = gameData['currentTurn'];
                 String? winner = gameData['winner'];
+                int player1Wins = gameData['player1Wins'];
+                int player2Wins = gameData['player2Wins'];
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -185,11 +187,32 @@ class _GameScreenState extends State<GameScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      width: 300,
-                      height: 50,
-                      color: Colors.white,
+                  Container(
+                    width: 350,
+                    height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(1.0),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.blueAccent, width: 2),
+                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text('Player 1 Wins: $player1Wins',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            )),
+                        Text('Player 2 Wins: $player2Wins',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            )),
+                      ],
                     ),
+                  ),
                     const SizedBox(height: 10),
                     GridView.builder(
                       shrinkWrap: true,
@@ -306,4 +329,5 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
   }
+
 }
