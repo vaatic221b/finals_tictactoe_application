@@ -174,7 +174,7 @@ class _GameScreenState extends State<GameScreen> {
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: winner == gameData['player1']
-              ? Color(0xFFE94A5A) 
+              ? Color(0xFFE94A5A)
               : Color(0xFF4AB6D8), 
         ),
       );
